@@ -1,0 +1,112 @@
+---
+- name: Setup locales
+  locale_gen:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - en_US.UTF-8
+    - fr_FR.UTF-8
+
+- name: Set timezone to Europe/Paris
+  timezone:
+    name: Europe/Paris
+
+- name: Add sources.list
+  template:
+    src: 'etc/apt/sources.list.j2'
+    dest: '/etc/apt/sources.list'
+    mode: 0644
+  notify: update_apt_cache
+
+- name: Install basic packages
+  apt:
+    update_cache: true
+    name:
+      - zsh
+      - vim
+      - git
+      - tmux
+      - nano
+      - htop
+      - iftop
+      - iotop
+      - jnettop
+      - curl
+      - wget
+      - sudo
+      - strace
+      - nload
+      - ioping
+      - reptyr
+      - tree
+      - ncdu
+      - zip
+      - unzip
+      - time
+      - dialog
+      - apt-utils
+      - screen
+      - vnstat
+      - man-db
+      - python3-pip
+      - dnsutils
+      - telnet
+      - tcpdump
+      - traceroute
+      - mtr
+      - nmap
+      - lsof
+      - apt-transport-https
+      - pigz
+      - uptimed
+      - ethstatus
+      - ca-certificates
+      - logrotate
+      - net-tools
+      - rsync
+      - jq
+      - sysstat
+
+- name: Set zsh as the root shell
+  user:
+    name: root
+    shell: /usr/bin/zsh
+
+- name: Add vimrc
+  get_url:
+    url: https://raw.githubusercontent.com/wklken/vim-for-server/master/vimrc
+    dest: /root/.vimrc
+
+- name: Add password to root user
+  user:
+    name: root
+    password: '{{ vault.root_password }}'
+
+- name: Add vincent user
+  user:
+    name: vincent
+    groups: ['sudo']
+    shell: /usr/bin/zsh
+    password: '{{ vault.vincent_password }}'
+
+- name: Creates /home/vincent/.ssh/ directory
+  file:
+    path: /home/vincent/.ssh/
+    state: directory
+    owner: vincent
+    group: vincent
+    mode: 0700
+
+- name: Set up SSH authorized keys
+  template:
+    src: 'ssh/authorized_keys.j2'
+    dest: '{{ item }}'
+    mode: 0600
+  with_items:
+    - /root/.ssh/authorized_keys
+    - /home/vincent/.ssh/authorized_keys
+
+- name: Install basic packages
+  apt:
+    name:
+      - fail2ban
