@@ -1,11 +1,9 @@
 # Ansible Base
-=========
 
 Permet de faire ma configuration de base sur une Debian Bullseye. 
 
 
-Example Playbook
-----------------
+## Example Playbook
 
 Add this to requirements.yml:
 
@@ -15,7 +13,7 @@ Add this to requirements.yml:
   version: vX.X.X
 ```
 
-License
--------
+## License
+
 
 MIT
